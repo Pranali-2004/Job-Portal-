@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Dashboard</title>
+
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Segoe UI', 'Noto Color Emoji', sans-serif;
+			background: #020617;
+			color: white;
+		}
+
+		.navbar {
+			padding: 15px 30px;
+			border-bottom: 1px solid #1e293b;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.navbar h2 {
+			margin: 0;
+		}
+
+		.user-info {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+			font-size: 14px;
+			color: #cbd5e1;
+		}
+
+		.user-info button {
+			padding: 8px 15px;
+		}
+
+		.container {
+			display: flex;
+			gap: 20px;
+			padding: 20px;
+		}
+
+		.main {
+			width: 75%;
+		}
+
+		.jobs {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 20px;
+		}
+
+		.card {
+			background: #1e293b;
+			border-radius: 12px;
+			overflow: hidden;
+		}
+
+		.card img {
+			width: 100%;
+			height: 160px;
+			object-fit: cover;
+		}
+
+		.content {
+			padding: 15px;
+		}
+
+		.desc {
+			font-size: 13px;
+			color: #cbd5e1;
+		}
+
+		button {
+			padding: 8px 15px;
+			border: none;
+			border-radius: 6px;
+			background: #38bdf8;
+			cursor: pointer;
+			color: #020617;
+			font-weight: 600;
+		}
+
+		button:hover {
+			background: #0ea5e9;
+		}
+
+		button.secondary {
+			background: #334155;
+			color: white;
+		}
+
+		button.danger {
+			background: #f87171;
+			color: #020617;
+		}
+
+		.msg {
+			max-width: 70%;
+			padding: 10px 14px;
+			border-radius: 15px;
+			margin: 6px 0;
+			font-size: 14px;
+			line-height: 1.4;
+		}
+
+		.user {
+			background: #4f46e5;
+			align-self: flex-end;
+			border-bottom-right-radius: 3px;
+		}
+
+		.bot {
+			background: #334155;
+			align-self: flex-start;
+			border-bottom-left-radius: 3px;
+		}
+
+		/* AI */
+		.chat-section {
+			width: 25%;
+		}
+
+		.chat-box {
+			background: #1e293b;
+			padding: 15px;
+			border-radius: 10px;
+			height: 600px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#chat {
+			flex: 1;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+		}
+
+		.input-area {
+			display: flex;
+			margin-top: 10px;
+			gap: 8px;
+		}
+
+		.input-area input {
+			flex: 1;
+			padding: 10px;
+			border: none;
+			border-radius: 10px;
+		}
+
+		.pagination {
+			text-align: center;
+			margin: 20px;
+		}
+
+		/* TABS */
+		.tabs {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 15px;
+		}
+
+		.tabs button {
+			background: #1e293b;
+			color: #94a3b8;
+		}
+
+		.tabs button.active {
+			background: #38bdf8;
+			color: #020617;
+		}
+
+		/* SEARCH BAR */
+		.search-bar {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 20px;
+		}
+
+		.search-bar input {
+			flex: 1;
+			padding: 10px;
+			border: none;
+			border-radius: 8px;
+			background: #1e293b;
+			color: white;
+		}
+
+		.search-bar input::placeholder {
+			color: #94a3b8;
+		}
+
+		/* APPLICATION LIST (My Applications) */
+		.app-row {
+			background: #1e293b;
+			border-radius: 10px;
+			padding: 15px;
+			margin-bottom: 12px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.app-row .info h4 {
+			margin: 0 0 5px 0;
+		}
+
+		.app-row .info p {
+			margin: 2px 0;
+			font-size: 13px;
+			color: #cbd5e1;
+		}
+
+		.status-badge {
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			margin-right: 10px;
+		}
+
+		.status-Applied {
+			background: #334155;
+			color: #e2e8f0;
+		}
+
+		.status-Reviewed {
+			background: #0ea5e9;
+			color: #020617;
+		}
+
+		.status-Shortlisted {
+			background: #22c55e;
+			color: #020617;
+		}
+
+		.status-Rejected {
+			background: #f87171;
+			color: #020617;
+		}
+
+		.status-Hired {
+			background: #facc15;
+			color: #020617;
+		}
+
+		/* MODAL */
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(0, 0, 0, 0.6);
+			align-items: center;
+			justify-content: center;
+			z-index: 100;
+		}
+
+		.modal-overlay.open {
+			display: flex;
+		}
+
+		.modal {
+			background: #0f172a;
+			border: 1px solid #1e293b;
+			padding: 25px;
+			border-radius: 12px;
+			width: 420px;
+			max-width: 90vw;
+			max-height: 85vh;
+			overflow-y: auto;
+		}
+
+		.modal h3 {
+			margin-top: 0;
+		}
+
+		.modal input,
+		.modal textarea {
+			width: 100%;
+			padding: 10px;
+			margin: 8px 0;
+			border-radius: 6px;
+			border: none;
+			background: #1e293b;
+			color: white;
+			box-sizing: border-box;
+		}
+
+		.modal textarea {
+			min-height: 90px;
+			resize: vertical;
+		}
+
+		.modal-actions {
+			display: flex;
+			gap: 10px;
+			margin-top: 10px;
+		}
+
+		.modal-actions button {
+			flex: 1;
+		}
+
+		.empty-state {
+			color: #94a3b8;
+			text-align: center;
+			padding: 40px 0;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="navbar">
+		<h2>🚀 Dashboard</h2>
+		<div class="user-info">
+			<span id="welcomeMsg"></span>
+			<button class="secondary" onclick="logout()">Logout</button>
+		</div>
+	</div>
+
+	<div class="container">
+
+		<div class="main">
+
+			<div class="tabs">
+				<button id="tabFind" class="active" onclick="showTab('find')">🔍 Find Jobs</button>
+				<button id="tabMine" onclick="showTab('mine')">📋 My Applications</button>
+			</div>
+
+			<!-- FIND JOBS TAB -->
+			<div id="findTab">
+
+				<div class="search-bar">
+					<input id="keyword" placeholder="Search by title, company or keyword...">
+					<input id="locationFilter" placeholder="Location">
+					<button onclick="searchJobs()">Search</button>
+					<button class="secondary" onclick="clearSearch()">Clear</button>
+				</div>
+
+				<div class="jobs" id="jobs"></div>
+
+				<div class="pagination">
+					<button onclick="prev()">⬅ Prev</button>
+					<button onclick="next()">Next ➡</button>
+				</div>
+
+			</div>
+
+			<!-- MY APPLICATIONS TAB -->
+			<div id="mineTab" style="display:none;">
+				<div id="myApps"></div>
+			</div>
+
+		</div>
+
+		<!-- AI -->
+		<div class="chat-section">
+			<div class="chat-box">
+				<h3>AI Assistant 🤖</h3>
+
+				<div id="chat"></div>
+
+				<div class="input-area">
+					<input id="query" placeholder="Ask something...">
+					<button onclick="ask()">Send</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- APPLICATION FORM MODAL -->
+	<div class="modal-overlay" id="applyModal">
+		<div class="modal">
+			<h3>Apply for <span id="applyJobTitle"></span></h3>
+
+			<input id="applyName" placeholder="Full Name">
+			<input id="applyEmail" placeholder="Email">
+			<input id="applyPhone" placeholder="Phone Number">
+			<input id="applyResume" placeholder="Resume Link (optional)">
+			<textarea id="applyCover" placeholder="Cover letter / why you're a good fit..."></textarea>
+
+			<div class="modal-actions">
+				<button class="secondary" onclick="closeApplyModal()">Cancel</button>
+				<button onclick="submitApplication()">Submit Application</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+
+		let page = 0;
+		let currentKeyword = "";
+		let currentLocation = "";
+		let applyingJobId = null;
+		let currentJobs = [];
+
+		const userId = localStorage.getItem("userId");
+		const userName = localStorage.getItem("userName") || "";
+		const userEmail = localStorage.getItem("userEmail") || "";
+
+		if (!userId) {
+			window.location = "userLogin.html";
+		}
+
+		document.getElementById("welcomeMsg").innerText = userName ? `Welcome, ${userName} 👋` : "";
+
+		function logout() {
+			localStorage.removeItem("userId");
+			localStorage.removeItem("userName");
+			localStorage.removeItem("userEmail");
+			window.location = "index.html";
+		}
+
+		// TABS
+		function showTab(tab) {
+			document.getElementById("findTab").style.display = tab === "find" ? "block" : "none";
+			document.getElementById("mineTab").style.display = tab === "mine" ? "block" : "none";
+			document.getElementById("tabFind").classList.toggle("active", tab === "find");
+			document.getElementById("tabMine").classList.toggle("active", tab === "mine");
+
+			if (tab === "mine") {
+				loadMyApplications();
+			}
+		}
+
+		// LOAD / SEARCH JOBS
+		function loadJobs() {
+
+			let url = currentKeyword || currentLocation
+				? `/jobs/search?keyword=${encodeURIComponent(currentKeyword)}&location=${encodeURIComponent(currentLocation)}&page=${page}&size=4`
+				: `/jobs?page=${page}&size=4`;
+
+			fetch(url)
+				.then(r => r.json())
+				.then(data => {
+					let h = "";
+
+					currentJobs = data.content || [];
+
+					if (currentJobs.length === 0) {
+						h = `<p class="empty-state">No jobs found 🙁</p>`;
+					}
+
+					currentJobs.forEach(j => {
+						h += `
+      <div class="card">
+        <img src="${j.imageUrl}">
+        <div class="content">
+          <h3>${j.jobTitle}</h3>
+          <p>${j.company} — ${j.location || ""}</p>
+          <p class="desc">${j.jobDescription || "No description"}</p>
+          <button onclick="openApplyModal(${j.jobId})">Apply</button>
+        </div>
+      </div>`;
+					});
+					document.getElementById("jobs").innerHTML = h;
+				});
+		}
+
+		function searchJobs() {
+			currentKeyword = document.getElementById("keyword").value.trim();
+			currentLocation = document.getElementById("locationFilter").value.trim();
+			page = 0;
+			loadJobs();
+		}
+
+		function clearSearch() {
+			document.getElementById("keyword").value = "";
+			document.getElementById("locationFilter").value = "";
+			currentKeyword = "";
+			currentLocation = "";
+			page = 0;
+			loadJobs();
+		}
+
+		// APPLICATION FORM MODAL
+		function openApplyModal(jobId) {
+			let job = currentJobs.find(j => j.jobId === jobId);
+			applyingJobId = jobId;
+			document.getElementById("applyJobTitle").innerText = job ? job.jobTitle : "";
+			document.getElementById("applyName").value = userName;
+			document.getElementById("applyEmail").value = userEmail;
+			document.getElementById("applyPhone").value = "";
+			document.getElementById("applyResume").value = "";
+			document.getElementById("applyCover").value = "";
+			document.getElementById("applyModal").classList.add("open");
+		}
+
+		function closeApplyModal() {
+			document.getElementById("applyModal").classList.remove("open");
+			applyingJobId = null;
+		}
+
+		function submitApplication() {
+
+			let name = document.getElementById("applyName").value.trim();
+			let email = document.getElementById("applyEmail").value.trim();
+			let phone = document.getElementById("applyPhone").value.trim();
+
+			if (!name || !email || !phone) {
+				alert("Please fill in your name, email and phone number.");
+				return;
+			}
+
+			let payload = {
+				userId: parseInt(userId),
+				jobId: applyingJobId,
+				applicantName: name,
+				applicantEmail: email,
+				applicantPhone: phone,
+				resumeLink: document.getElementById("applyResume").value.trim(),
+				coverLetter: document.getElementById("applyCover").value.trim()
+			};
+
+			fetch("/apply", {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				body: JSON.stringify(payload)
+			})
+				.then(r => r.text())
+				.then(msg => {
+					alert(msg);
+					closeApplyModal();
+				});
+		}
+
+		// MY APPLICATIONS
+		function loadMyApplications() {
+
+			fetch(`/applications/user/${userId}`)
+				.then(r => r.json())
+				.then(data => {
+
+					if (!data || data.length === 0) {
+						document.getElementById("myApps").innerHTML = `<p class="empty-state">You haven't applied to any jobs yet 📭</p>`;
+						return;
+					}
+
+					let h = "";
+
+					data.forEach(a => {
+						let date = a.appliedDate ? new Date(a.appliedDate).toLocaleDateString() : "";
+						h += `
+      <div class="app-row">
+        <div class="info">
+          <h4>${a.jobTitle}</h4>
+          <p>${a.company} — ${a.location || ""}</p>
+          <p>Applied on ${date}</p>
+        </div>
+        <div>
+          <span class="status-badge status-${a.status}">${a.status}</span>
+          <button class="danger" onclick="withdraw(${a.applicationId})">Withdraw</button>
+        </div>
+      </div>`;
+					});
+
+					document.getElementById("myApps").innerHTML = h;
+				});
+		}
+
+		function withdraw(applicationId) {
+			if (!confirm("Withdraw this application?")) return;
+
+			fetch(`/applications/${applicationId}`, {method: "DELETE"})
+				.then(r => r.text())
+				.then(msg => {
+					alert(msg);
+					loadMyApplications();
+				});
+		}
+
+		// PAGINATION
+		function next() {
+			page++;
+			loadJobs();
+		}
+
+		function prev() {
+			if (page > 0) {
+				page--;
+				loadJobs();
+			}
+		}
+
+		// AI CHAT
+		function ask() {
+
+			let q = document.getElementById("query").value;
+
+			if (q.trim() === "") {
+				return;
+			}
+
+			chat.innerHTML += `<div class="msg user">🧑 ${q}</div>`;
+			chat.innerHTML += `<div class="msg bot">🤖 typing...</div>`;
+
+			scrollBottom();
+
+			fetch(`/ai/suggest?skill=${encodeURIComponent(q)}`)
+				.then(r => r.text())
+				.then(d => {
+
+					let msgs = document.querySelectorAll(".bot");
+					msgs[msgs.length - 1].remove();
+
+					chat.innerHTML += `<div class="msg bot">🤖 ${d}</div>`;
+
+					scrollBottom();
+				});
+
+			document.getElementById("query").value = "";
+		}
+
+		function scrollBottom() {
+			let box = document.getElementById("chat");
+			box.scrollTop = box.scrollHeight;
+		}
+
+		document.getElementById("query").addEventListener("keypress", function (e) {
+			if (e.key === "Enter") {
+				ask();
+			}
+		});
+
+		loadJobs();
+
+	</script>
+
+</body>
+
+</html>

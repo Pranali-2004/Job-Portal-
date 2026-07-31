@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>User Register</title>
+
+	<style>
+		body {
+			margin: 0;
+			font-family: 'Segoe UI', 'Noto Color Emoji', sans-serif;
+			background: radial-gradient(circle at top, #0f172a, #020617);
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: white;
+		}
+
+		/* GLASS CARD */
+		.box {
+			width: 360px;
+			padding: 40px;
+			border-radius: 15px;
+			backdrop-filter: blur(15px);
+			background: rgba(255, 255, 255, 0.05);
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+			text-align: center;
+		}
+
+		/* TITLE */
+		h2 {
+			margin-bottom: 20px;
+			font-weight: 600;
+		}
+
+		/* INPUT GROUP */
+		.input-group {
+			margin: 15px 0;
+		}
+
+		/* INPUT */
+		input {
+			width: 100%;
+			padding: 12px;
+			border-radius: 8px;
+			border: none;
+			outline: none;
+			background: #1e293b;
+			color: white;
+		}
+
+		input::placeholder {
+			color: #94a3b8;
+		}
+
+		/* BUTTON */
+		button {
+			width: 100%;
+			padding: 12px;
+			margin-top: 10px;
+			border: none;
+			border-radius: 8px;
+			background: linear-gradient(135deg, #6366f1, #0ea5e9);
+			color: white;
+			font-weight: bold;
+			cursor: pointer;
+			transition: 0.3s;
+		}
+
+		button:hover {
+			transform: scale(1.05);
+		}
+
+		/* LINKS */
+		.extra {
+			margin-top: 15px;
+			font-size: 14px;
+		}
+
+		.extra a {
+			color: #38bdf8;
+			text-decoration: none;
+		}
+
+		.extra a:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="box">
+
+		<h2>Create Account ✨</h2>
+
+		<div class="input-group">
+			<input id="name" placeholder="Full Name">
+		</div>
+
+		<div class="input-group">
+			<input id="email" placeholder="Email">
+		</div>
+
+		<div class="input-group">
+			<input id="password" type="password" placeholder="Password">
+		</div>
+
+		<button onclick="register()">Register</button>
+
+		<div class="extra">
+			<p>Already have an account? <a href="userLogin.html">Login</a></p>
+		</div>
+
+	</div>
+
+	<script>
+		function register() {
+
+			let n = document.getElementById("name").value;
+			let e = document.getElementById("email").value;
+			let p = document.getElementById("password").value;
+
+			console.log("Sending Name:", n);
+
+			fetch("/users/addUsers", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					name: n,
+					email: e,
+					password: p
+				})
+			})
+				.then(res => res.text())
+				.then(msg => alert(msg));
+
+
+		}
+	</script>
+
+</body>
+
+</html>

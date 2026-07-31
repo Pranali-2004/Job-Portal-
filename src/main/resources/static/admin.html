@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+
+body {
+  margin:0;
+  font-family:'Segoe UI';
+  background:#020617;
+  color:white;
+}
+
+/* NAVBAR SPACE */
+#nav { margin-bottom:10px; }
+
+/* LAYOUT */
+.container {
+  padding:20px;
+}
+
+/* GRID */
+.grid {
+  display:grid;
+  grid-template-columns: 1fr 2fr;
+  gap:20px;
+}
+
+/* CARD */
+.card {
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.4);
+}
+
+/* FORM */
+input, textarea, select {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+  box-sizing:border-box;
+  background:#0f172a;
+  color:white;
+}
+
+button {
+  padding:10px;
+  background:#38bdf8;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  color:#020617;
+  font-weight:600;
+}
+
+button:hover {
+  background:#0ea5e9;
+}
+
+button.secondary{
+  background:#334155;
+  color:white;
+}
+
+button.danger{
+  background:#f87171;
+}
+
+button.small{
+  padding:6px 10px;
+  font-size:12px;
+  margin:2px;
+}
+
+/* JOB TABLE */
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td {
+  padding:10px;
+  text-align:left;
+  vertical-align:top;
+}
+
+th {
+  background:#0f172a;
+}
+
+tr:nth-child(even){
+  background:#334155;
+}
+
+/* APPLICATIONS */
+.app-box {
+  margin-top:20px;
+}
+
+.status-badge{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.status-Applied{ background:#334155; color:#e2e8f0; }
+.status-Reviewed{ background:#0ea5e9; color:#020617; }
+.status-Shortlisted{ background:#22c55e; color:#020617; }
+.status-Rejected{ background:#f87171; color:#020617; }
+.status-Hired{ background:#facc15; color:#020617; }
+
+/* MODAL */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+
+.modal-overlay.open{
+  display:flex;
+}
+
+.modal{
+  background:#0f172a;
+  border:1px solid #1e293b;
+  padding:25px;
+  border-radius:12px;
+  width:420px;
+  max-width:90vw;
+  max-height:85vh;
+  overflow-y:auto;
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.modal-actions button{
+  flex:1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR LOAD -->
+<div id="nav"></div>
+
+<script>
+fetch("navbar.html")
+.then(r=>r.text())
+.then(d=> document.getElementById("nav").innerHTML=d);
+</script>
+
+<div class="container">
+
+  <h2>Admin Dashboard ⚙️</h2>
+
+  <div class="grid">
+
+    <!-- ADD JOB -->
+    <div class="card">
+
+      <h3>Add Job</h3>
+
+      <input id="title" placeholder="Job Title">
+      <input id="company" placeholder="Company">
+      <input id="location" placeholder="Location">
+      <input id="salary" placeholder="Salary">
+      <input id="imageUrl" placeholder="Image URL">
+      <textarea id="desc" placeholder="Description"></textarea>
+
+      <button onclick="addJob()">Add Job</button>
+
+    </div>
+
+    <!-- JOB LIST -->
+    <div class="card">
+
+      <h3>Job Management 🗂️</h3>
+
+      <input id="jobSearch" placeholder="Search jobs by title, company or location..." oninput="filterJobs()">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="jobTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div class="card app-box">
+
+    <h3>Applications 📄</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Contact</th>
+          <th>Job</th>
+          <th>Status</th>
+          <th>Manage</th>
+        </tr>
+      </thead>
+      <tbody id="apps"></tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<!-- EDIT JOB MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Job</h3>
+
+    <input id="editTitle" placeholder="Job Title">
+    <input id="editCompany" placeholder="Company">
+    <input id="editLocation" placeholder="Location">
+    <input id="editSalary" placeholder="Salary">
+    <input id="editImageUrl" placeholder="Image URL">
+    <textarea id="editDesc" placeholder="Description"></textarea>
+
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeEditModal()">Cancel</button>
+      <button onclick="saveJobEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+	let allJobs = [];
+	let editingJobId = null;
+
+	function addJob(){
+
+	 fetch("/addJobs",{
+	  method:"POST",
+	  headers:{"Content-Type":"application/json"},
+	  body: JSON.stringify({
+	    jobTitle:title.value,
+	    company:company.value,
+	    location:location.value,
+	    salary: parseFloat(salary.value) || 0,
+	    imageUrl:imageUrl.value,
+	    jobDescription:desc.value
+	  })
+	 })
+	 .then(r=>r.text())
+	 .then(msg=>{
+	   alert(msg);
+	   title.value=""; company.value=""; location.value="";
+	   salary.value=""; imageUrl.value=""; desc.value="";
+	   loadJobs();
+	 });
+	}
+
+	function loadJobs(){
+
+	 fetch("/jobs?page=0&size=100")
+	 .then(r=>r.json())
+	 .then(data=>{
+	  allJobs = data.content;
+	  renderJobs(allJobs);
+	 });
+	}
+
+	function renderJobs(list){
+
+	  let h="";
+
+	  list.forEach(j=>{
+	    h+=`
+	    <tr>
+	      <td>${j.jobTitle}</td>
+	      <td>${j.company}</td>
+	      <td>${j.location||""}</td>
+	      <td>
+	        <button class="small" onclick="openEditModal(${j.jobId})">Edit</button>
+	        <button class="small danger" onclick="del(${j.jobId})">Delete</button>
+	      </td>
+	    </tr>`;
+	  });
+
+	  jobTable.innerHTML = h || `<tr><td colspan="4">No jobs found</td></tr>`;
+	}
+
+	function filterJobs(){
+	  let q = document.getElementById("jobSearch").value.toLowerCase();
+	  let filtered = allJobs.filter(j =>
+	    (j.jobTitle||"").toLowerCase().includes(q) ||
+	    (j.company||"").toLowerCase().includes(q) ||
+	    (j.location||"").toLowerCase().includes(q)
+	  );
+	  renderJobs(filtered);
+	}
+
+	function openEditModal(id){
+	  let j = allJobs.find(x=>x.jobId===id);
+	  if(!j) return;
+
+	  editingJobId = id;
+	  document.getElementById("editTitle").value = j.jobTitle || "";
+	  document.getElementById("editCompany").value = j.company || "";
+	  document.getElementById("editLocation").value = j.location || "";
+	  document.getElementById("editSalary").value = j.salary || "";
+	  document.getElementById("editImageUrl").value = j.imageUrl || "";
+	  document.getElementById("editDesc").value = j.jobDescription || "";
+
+	  document.getElementById("editModal").classList.add("open");
+	}
+
+	function closeEditModal(){
+	  document.getElementById("editModal").classList.remove("open");
+	  editingJobId = null;
+	}
+
+	function saveJobEdit(){
+
+	  fetch(`/jobs/${editingJobId}`, {
+	    method:"PUT",
+	    headers:{"Content-Type":"application/json"},
+	    body: JSON.stringify({
+	      jobTitle: document.getElementById("editTitle").value,
+	      company: document.getElementById("editCompany").value,
+	      location: document.getElementById("editLocation").value,
+	      salary: parseFloat(document.getElementById("editSalary").value) || 0,
+	      imageUrl: document.getElementById("editImageUrl").value,
+	      jobDescription: document.getElementById("editDesc").value
+	    })
+	  })
+	  .then(r=>r.text())
+	  .then(msg=>{
+	    alert(msg);
+	    closeEditModal();
+	    loadJobs();
+	  });
+	}
+
+
+	function del(id){
+
+		  if(confirm("Are you sure you want to delete?")){
+
+		    fetch(`/jobs/${id}`, {
+		      method: "DELETE"
+		    })
+		    .then(res => res.text())
+		    .then(msg => {
+		      alert(msg);
+		      loadJobs();
+		    })
+		    .catch(err => {
+		      alert("Delete failed 😅");
+		      console.error(err);
+		    });
+
+		  }
+
+		}
+
+	function loadApplications(){
+
+		 fetch("/applications/details")
+		 .then(r=>r.json())
+		 .then(data=>{
+
+		  let h = "";
+
+		  if(!data || data.length===0){
+		    apps.innerHTML = `<tr><td colspan="5">No applications yet</td></tr>`;
+		    return;
+		  }
+
+		  data.forEach(a=>{
+		    h += `
+		    <tr>
+		      <td>${a.username||"-"}</td>
+		      <td>${a.applicantEmail||"-"}<br>${a.applicantPhone||""}</td>
+		      <td>${a.JobTitle} <br><small>${a.company||""}</small></td>
+		      <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+		      <td>
+		        <select onchange="updateStatus(${a.applicationId}, this.value)">
+		          <option value="">Change status...</option>
+		          <option value="Applied">Applied</option>
+		          <option value="Reviewed">Reviewed</option>
+		          <option value="Shortlisted">Shortlisted</option>
+		          <option value="Rejected">Rejected</option>
+		          <option value="Hired">Hired</option>
+		        </select>
+		      </td>
+		    </tr>`;
+		  });
+
+		  document.getElementById("apps").innerHTML = h;
+
+		 });
+		}
+
+	function updateStatus(applicationId, status){
+	  if(!status) return;
+
+	  fetch(`/applications/${applicationId}/status?status=${encodeURIComponent(status)}`, {
+	    method:"PUT"
+	  })
+	  .then(r=>r.text())
+	  .then(msg=>{
+	    loadApplications();
+	  });
+	}
+
+
+	window.onload = function(){
+		  loadJobs();
+		  loadApplications();
+		}
+</script>
+
+</body>
+</html>
