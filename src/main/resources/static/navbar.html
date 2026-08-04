@@ -1,6 +1,13 @@
 <div class="navbar">
   <div class="logo">🚀 AI Career</div>
 
+  <input type="checkbox" id="navToggle" class="nav-toggle">
+  <label for="navToggle" class="hamburger" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </label>
+
   <div class="links">
     <a href="dashboard.html">Dashboard</a>
     <a href="admin.html">Admin</a>
@@ -10,16 +17,25 @@
 
 <style>
 .navbar {
+  position:relative;
   display:flex;
   justify-content:space-between;
+  align-items:center;
   padding:15px 30px;
   background:#020617;
   border-bottom:1px solid #1e293b;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 .logo {
   color:#38bdf8;
   font-weight:bold;
+}
+
+.links {
+  display:flex;
+  flex-wrap:wrap;
 }
 
 .links a {
@@ -30,5 +46,75 @@
 
 .links a:hover {
   color:#38bdf8;
+}
+
+/* Hamburger hidden on desktop */
+.nav-toggle {
+  display:none;
+}
+
+.hamburger {
+  display:none;
+  flex-direction:column;
+  justify-content:space-between;
+  width:26px;
+  height:19px;
+  cursor:pointer;
+  z-index:20;
+}
+
+.hamburger span {
+  display:block;
+  height:3px;
+  width:100%;
+  background:#38bdf8;
+  border-radius:2px;
+  transition:0.3s ease;
+}
+
+/* Animate into an X when open */
+.nav-toggle:checked ~ .hamburger span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.nav-toggle:checked ~ .hamburger span:nth-child(2) {
+  opacity:0;
+}
+.nav-toggle:checked ~ .hamburger span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding:12px 15px;
+  }
+
+  .hamburger {
+    display:flex;
+  }
+
+  .links {
+    display:none;
+    flex-direction:column;
+    width:100%;
+    order:3;
+    background:#0f172a;
+    border-radius:8px;
+    padding:10px 0;
+    margin-top:10px;
+  }
+
+  .nav-toggle:checked ~ .links {
+    display:flex;
+  }
+
+  .links a {
+    margin-left:0;
+    padding:12px 20px;
+    border-bottom:1px solid #1e293b;
+  }
+
+  .links a:last-child {
+    border-bottom:none;
+  }
 }
 </style>

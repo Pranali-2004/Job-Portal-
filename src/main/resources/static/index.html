@@ -2,9 +2,14 @@
 <html>
 <head>
 	<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Portal with AI Assistant</title>
 
 <style>
+* {
+  box-sizing:border-box;
+}
+
 body {
   margin:0;
   font-family: system-ui, -apple-system, "Segoe UI", "Noto Color Emoji", sans-serif;
@@ -17,11 +22,17 @@ body {
   justify-content:space-between;
   padding:20px;
   background:#020617;
+  flex-wrap:wrap;
 }
 
 .container {
   text-align:center;
   margin-top:120px;
+  padding:0 20px;
+}
+
+.container h1 {
+  font-size:2rem;
 }
 
 button {
@@ -34,6 +45,24 @@ button {
 
 .user { background:#6366f1; color:white; }
 .admin { background:#0ea5e9; color:white; }
+
+@media (max-width: 600px) {
+  .container {
+    margin-top:80px;
+  }
+  .container h1 {
+    font-size:1.5rem;
+  }
+  .navbar h2 {
+    font-size:1.2rem;
+  }
+  button {
+    width:80%;
+    max-width:280px;
+    display:block;
+    margin:10px auto;
+  }
+}
 </style>
 
 </head>
