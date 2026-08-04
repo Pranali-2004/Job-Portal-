@@ -9,7 +9,7 @@ RUN mvn -B -Dmaven.wagon.http.retryHandler.count=3 \
 
 # Now copy the actual source code and build
 COPY src ./src
-RUN mvn -B -o -Dmaven.wagon.http.retryHandler.count=3 clean package -DskipTests
+RUN mvn -B -Dmaven.wagon.http.retryHandler.count=3 clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
